@@ -434,38 +434,7 @@ namespace EcommerceAPI.Controllers
         }
 
 
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        //[HttpGet("mi-perfil")]
-        //public async Task<ActionResult<UserInfoDTO>> ObtenerMiPerfil()
-        //{
-
-        //    //Obteniendo el claim de email
-        //    var emailClaim = User.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
-        //    if (string.IsNullOrEmpty(emailClaim))
-        //    {
-        //        //si no hay claim email retornamos esto
-        //        return Unauthorized();
-        //    }
-
-        //    //buscamos el email del usuario
-        //    var user = await userManager.FindByEmailAsync(emailClaim);
-        //    if (user == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    //obtenemos los claims del usuario
-        //    var claims = await userManager.GetClaimsAsync(user);
-        //    var googleId = claims.FirstOrDefault(c => c.Type == "GoogleId")?.Value;
-
-        //    return new UserInfoDTO
-        //    {
-        //        Email = user.Email!,
-        //        Name = user.UserName!,
-        //        Picture = claims.FirstOrDefault(c => c.Type == "Picture")?.Value ?? string.Empty,
-        //        GoogleId = googleId
-        //    };
-        //}
+       
 
 
 
