@@ -4,6 +4,7 @@ using EcommerceAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EcommerceAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260806200020_AgregandoFavoritos")]
+    partial class AgregandoFavoritos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,7 +38,7 @@ namespace EcommerceAPI.Migrations
 
                     b.HasIndex("UsuarioId");
 
-                    b.ToTable("Carritos", (string)null);
+                    b.ToTable("Carritos");
                 });
 
             modelBuilder.Entity("EcommerceAPI.Modelos.CarritoItems", b =>
@@ -60,7 +63,7 @@ namespace EcommerceAPI.Migrations
 
                     b.HasIndex("ProductoId");
 
-                    b.ToTable("CarritoItems", (string)null);
+                    b.ToTable("CarritoItems");
                 });
 
             modelBuilder.Entity("EcommerceAPI.Modelos.Categoria", b =>
@@ -75,7 +78,7 @@ namespace EcommerceAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categorias", (string)null);
+                    b.ToTable("Categorias");
                 });
 
             modelBuilder.Entity("EcommerceAPI.Modelos.Enums.EstadoOrden", b =>
@@ -90,7 +93,7 @@ namespace EcommerceAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EstadoOrdenes", (string)null);
+                    b.ToTable("EstadoOrdenes");
                 });
 
             modelBuilder.Entity("EcommerceAPI.Modelos.Enums.EstadoPago", b =>
@@ -105,12 +108,17 @@ namespace EcommerceAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EstadoPagos", (string)null);
+                    b.ToTable("EstadoPagos");
                 });
 
             modelBuilder.Entity("EcommerceAPI.Modelos.Favorito", b =>
                 {
                     b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ProductoId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("UsuarioId")
@@ -119,31 +127,11 @@ namespace EcommerceAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UsuarioId");
-
-                    b.ToTable("Favoritos", (string)null);
-                });
-
-            modelBuilder.Entity("EcommerceAPI.Modelos.FavoritoItems", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("FavoritoId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ProductoId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FavoritoId");
-
                     b.HasIndex("ProductoId");
 
-                    b.ToTable("FavoritoItems", (string)null);
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("Favoritos");
                 });
 
             modelBuilder.Entity("EcommerceAPI.Modelos.Orden", b =>
@@ -185,7 +173,7 @@ namespace EcommerceAPI.Migrations
 
                     b.HasIndex("UsuarioId");
 
-                    b.ToTable("Ordenes", (string)null);
+                    b.ToTable("Ordenes");
                 });
 
             modelBuilder.Entity("EcommerceAPI.Modelos.OrdenItems", b =>
@@ -217,7 +205,7 @@ namespace EcommerceAPI.Migrations
 
                     b.HasIndex("ProductoId");
 
-                    b.ToTable("OrdenItems", (string)null);
+                    b.ToTable("OrdenItems");
                 });
 
             modelBuilder.Entity("EcommerceAPI.Modelos.PerfilUsuario", b =>
@@ -248,7 +236,7 @@ namespace EcommerceAPI.Migrations
 
                     b.HasIndex("UsuarioId");
 
-                    b.ToTable("PerfilesUsuarios", (string)null);
+                    b.ToTable("PerfilesUsuarios");
                 });
 
             modelBuilder.Entity("EcommerceAPI.Modelos.Producto", b =>
@@ -289,7 +277,7 @@ namespace EcommerceAPI.Migrations
 
                     b.HasIndex("UsuarioId");
 
-                    b.ToTable("Productos", (string)null);
+                    b.ToTable("Productos");
                 });
 
             modelBuilder.Entity("EcommerceAPI.Modelos.ProductoHistorial", b =>
@@ -332,7 +320,7 @@ namespace EcommerceAPI.Migrations
 
                     b.HasIndex("CategoriaId");
 
-                    b.ToTable("ProductoHistorial", (string)null);
+                    b.ToTable("ProductoHistorial");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -565,32 +553,21 @@ namespace EcommerceAPI.Migrations
 
             modelBuilder.Entity("EcommerceAPI.Modelos.Favorito", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "Usuario")
-                        .WithMany()
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Usuario");
-                });
-
-            modelBuilder.Entity("EcommerceAPI.Modelos.FavoritoItems", b =>
-                {
-                    b.HasOne("EcommerceAPI.Modelos.Favorito", "Favorito")
-                        .WithMany("Items")
-                        .HasForeignKey("FavoritoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("EcommerceAPI.Modelos.Producto", "Producto")
                         .WithMany()
                         .HasForeignKey("ProductoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Favorito");
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Producto");
+
+                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("EcommerceAPI.Modelos.Orden", b =>
@@ -734,11 +711,6 @@ namespace EcommerceAPI.Migrations
             modelBuilder.Entity("EcommerceAPI.Modelos.Categoria", b =>
                 {
                     b.Navigation("Productos");
-                });
-
-            modelBuilder.Entity("EcommerceAPI.Modelos.Favorito", b =>
-                {
-                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("EcommerceAPI.Modelos.Orden", b =>

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using EcommerceAPI.DTOs.CarritoDTOs;
 using EcommerceAPI.DTOs.CategoriasDTOs;
+using EcommerceAPI.DTOs.FavoritoDTOs;
 using EcommerceAPI.DTOs.OrdenDTOs;
 using EcommerceAPI.DTOs.ProductosDTOs;
 using EcommerceAPI.DTOs.ProductosDTOs.EcommerceAPI.DTOs;
@@ -20,6 +21,7 @@ namespace EcommerceAPI.Utilidades
             MapeoUsuarios();
             MapeoCarritos();
             MapeoOrdenes();
+            MapeoFavoritos();
         }
 
 
@@ -30,14 +32,14 @@ namespace EcommerceAPI.Utilidades
                 ForMember(x => x.Productos, opc =>
                 opc.MapFrom(src => src.Productos!.Where(p => p.Aprobado)));
 
-            
+
 
         }
 
         private void MapeoProductos()
         {
             CreateMap<ProductoCreacionDTO, Producto>();
-           
+
 
 
             CreateMap<ProductoHistorial, ProductoHistorialDTO>()
@@ -49,17 +51,29 @@ namespace EcommerceAPI.Utilidades
 
             //Mapeamos hacia adelante y hacia atras
             CreateMap<Producto, AgregarMasProductosDTO>().ReverseMap();
-            
+
 
             CreateMap<Producto, ProductoSinCategoriaDTO>();
 
 
         }
 
+
+        private void MapeoFavoritos()
+        {
+            CreateMap<Favorito, FavoritoDTO>();
+            CreateMap<FavoritoItems, FavoritoItemsDTO>()
+                .ForMember(x => x.NombreProducto,
+                o => o.MapFrom(a => a.Producto.Nombre))
+                .ForMember(dest => dest.Precio,
+                           opt => opt.MapFrom(src => src.Producto.Precio))
+            .ForMember(dest => dest.ImagenUrl, opt => opt.MapFrom(src => src.Producto.ImagenUrl));
+        }
+
         private void MapeoOrdenes()
         {
 
-            CreateMap<OrdenCreacionDTO,Orden>();
+            CreateMap<OrdenCreacionDTO, Orden>();
             CreateMap<Orden, OrdenListadoDTO>().ReverseMap();
             CreateMap<OrdenListadoDTO, Orden>();
             CreateMap<OrdenItems, OrdenItemDTO>().ReverseMap();
@@ -67,8 +81,8 @@ namespace EcommerceAPI.Utilidades
             CreateMap<EstadoPagoCreacionDTO, EstadoPago>();
             CreateMap<Orden, EstadoOrdenDTO>().ReverseMap();
             CreateMap<Orden, EstadoPagoDTO>().ReverseMap();
-            CreateMap<EstadoOrden,EstadoOrdenDTO>().ReverseMap();
-             CreateMap<EstadoPago,EstadoPagoDTO>().ReverseMap();
+            CreateMap<EstadoOrden, EstadoOrdenDTO>().ReverseMap();
+            CreateMap<EstadoPago, EstadoPagoDTO>().ReverseMap();
 
 
 

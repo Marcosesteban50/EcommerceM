@@ -100,6 +100,9 @@ namespace EcommerceAPI.Data
             });
 
 
+         
+
+
             
         }
 
@@ -107,6 +110,7 @@ namespace EcommerceAPI.Data
         public DbSet<Producto> Productos { get; set; }
         public DbSet<Categoria> Categorias { get; set; }
         public DbSet<Carrito> Carritos { get; set; }
+        public DbSet<Favorito> Favoritos { get; set; }
         public DbSet<CarritoItems> CarritoItems { get; set; }
 
         public DbSet<Orden> Ordenes { get; set; }
