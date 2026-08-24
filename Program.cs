@@ -160,15 +160,15 @@ app.Use(async (context, next) =>
 
 
 //Para Unittesting y crear DB
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+//using (var scope = app.Services.CreateScope())
+//{
+//    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-    if (dbContext.Database.IsRelational())
-    {
-        dbContext.Database.Migrate();
-    }
-}
+//    if (dbContext.Database.IsRelational())
+//    {
+//        dbContext.Database.Migrate();
+//    }
+//}
 
 
 if (app.Environment.IsDevelopment())

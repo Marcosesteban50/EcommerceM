@@ -48,6 +48,21 @@ namespace EcommerceAPI.Utilidades
             CreateMap<Producto, ProductoDTO>()
                 .ForMember(x => x.CategoriaNombre, o => o.MapFrom(x => x.Categoria!.Nombre));
 
+            CreateMap<ProductoCreacionDTO, Producto>()
+    .ForMember(
+        x => x.Imagenes,
+        opt => opt.Ignore()
+    );
+
+
+            CreateMap<Producto, ProductoDTO>()
+    .ForMember(
+        x => x.Imagenes,
+        opt => opt.MapFrom(x =>
+            x.Imagenes.Select(i => i.Url)
+        )
+    );
+
 
             //Mapeamos hacia adelante y hacia atras
             CreateMap<Producto, AgregarMasProductosDTO>().ReverseMap();

@@ -71,6 +71,13 @@ namespace EcommerceAPI.Data
 
             });
 
+            modelBuilder.Entity<ImagenProducto>()
+      .HasOne(x => x.Producto)
+      .WithMany(x => x.Imagenes)
+      .HasForeignKey(x => x.ProductoId)
+      //Esto es para borrar imagen -> imagen1,2,3 borradas borra el carrusel si borra la imagen principal 
+      .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<OrdenItems>(x =>
             {
                 x.Property(c => c.PrecioUnitario).
@@ -82,7 +89,7 @@ namespace EcommerceAPI.Data
             {
                 // Relación Orden -> EstadoOrden
                 x.Property(o => o.Id).ValueGeneratedOnAdd();
-                    
+
             });
 
 
@@ -100,14 +107,15 @@ namespace EcommerceAPI.Data
             });
 
 
-         
 
 
-            
+
+
         }
 
 
         public DbSet<Producto> Productos { get; set; }
+        public DbSet<ImagenProducto> ImagenesProductos { get; set; }
         public DbSet<Categoria> Categorias { get; set; }
         public DbSet<Carrito> Carritos { get; set; }
         public DbSet<Favorito> Favoritos { get; set; }

@@ -15,6 +15,7 @@ namespace EcommerceAPI.DTOs.ProductosDTOs
         public decimal Precio { get; set; }
 
         public IFormFile? ImagenUrl { get; set; }
+        public List<IFormFile>? Imagenes { get; set; }
         public string? CategoriaId { get; set; }
         
 

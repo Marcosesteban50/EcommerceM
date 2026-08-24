@@ -57,6 +57,7 @@ namespace EcommerceAPI.Controllers
         [HttpGet("ObtenerProductos")]
         [OutputCache(Tags = [cacheTag])]
         [AllowAnonymous]
+
         public async Task<ActionResult<List<ProductoDTO>>> ObtenerProductos()
         {
             // Traigo solamente los productos aprobados para mostrarlos al público
@@ -75,7 +76,7 @@ namespace EcommerceAPI.Controllers
         // ------------------- GET: HISTORIAL POR ID -------------------
 
         [HttpGet("{Id}/historial")]
-        [AllowAnonymous]
+
         public async Task<ActionResult<ProductoHistorial>> ObtenerHistorial(string Id)
         {
             // Busco un registro del historial por su id
@@ -96,7 +97,7 @@ namespace EcommerceAPI.Controllers
 
         [HttpGet("{id}")]
         [OutputCache(Tags = [cacheTag])]
-        [AllowAnonymous]
+
         public async Task<ActionResult<ProductoDTO>> Get(string id)
         {
             // Busco un producto aprobado por su id
@@ -114,7 +115,7 @@ namespace EcommerceAPI.Controllers
         // ------------------- GET: TODO EL HISTORIAL DE PRODUCTOS -------------------
 
         [HttpGet("HistorialProductos")]
-        [AllowAnonymous]
+
         public async Task<ActionResult<List<ProductoHistorial>>> HistorialTodosProductos()
         {
             // Traigo todo el historial de productos ordenado desde el más reciente
@@ -149,11 +150,24 @@ namespace EcommerceAPI.Controllers
             // Convierto el DTO a la entidad Producto
             var producto = mapper.Map<Producto>(productoCreacionDTO);
 
+
+            Console.WriteLine($"Cantidad imágenes: {productoCreacionDTO.Imagenes?.Count}");
+
             // Si viene una imagen, la guardo en el contenedor de productos
-            if (productoCreacionDTO.ImagenUrl is not null)
+            if (productoCreacionDTO.Imagenes is not null)
             {
-                var url = await almacenadorArchivos.Almacenar(contenedor, productoCreacionDTO.ImagenUrl);
-                producto.ImagenUrl = url;
+
+                foreach (var imagen in productoCreacionDTO.Imagenes)
+                {
+                    var url = await almacenadorArchivos.Almacenar(contenedor, imagen);
+
+                    producto.Imagenes.Add(new ImagenProducto
+                    {
+                        Url = url,
+                    });
+                }
+
+
             }
 
             // El producto se crea pendiente de aprobación
@@ -235,7 +249,7 @@ namespace EcommerceAPI.Controllers
         // ------------------- PUT: EDITAR PRODUCTO -------------------
 
         [HttpPut("{id}")]
-        [AllowAnonymous]
+
         public async Task<ActionResult> Put(string id, [FromForm] ProductoCreacionDTO productoCreacionDTO)
         {
             // Obtengo el usuario que está editando
@@ -509,11 +523,13 @@ namespace EcommerceAPI.Controllers
                 productosQueryable = productosQueryable.OrderByDescending(x => x.Precio);
             }
 
-            var productos = await productosQueryable.ToListAsync();
+            var productos = await productosQueryable.ProjectTo<ProductoDTO>(mapper.ConfigurationProvider).ToListAsync();
 
             var productoDTO = mapper.Map<List<ProductoDTO>>(productos);
 
             return productoDTO;
+
+
         }
 
         // ------------------- MÉTODO PRIVADO: REGISTRAR HISTORIAL -------------------

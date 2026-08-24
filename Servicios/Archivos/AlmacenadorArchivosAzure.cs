@@ -9,7 +9,7 @@ namespace EcommerceAPI.Servicios.Archivos
         private string connectionString;
         public AlmacenadorArchivosAzure(IConfiguration configuration)
         {
-            connectionString = configuration.GetConnectionString("AzureStorageConnectio")!;
+            connectionString = configuration.GetConnectionString("AzureStorageConnection")!;
         }
         public async Task<string> Almacenar(string contenedor, IFormFile archivo)
         {

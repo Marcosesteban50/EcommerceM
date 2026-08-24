@@ -16,6 +16,7 @@ namespace EcommerceAPI.Modelos
         public decimal Precio { get; set; }
 
         public string? ImagenUrl { get; set; }   
+        public ICollection<ImagenProducto> Imagenes { get; set; } = new List<ImagenProducto>();
         public string? CategoriaId { get; set; }
       
 
