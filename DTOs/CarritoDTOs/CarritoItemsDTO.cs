@@ -8,7 +8,7 @@
         public decimal Precio { get; set; }
         public decimal Subtotal => Cantidad * Precio;
 
-        public string? ImagenUrl { get; set; }
+        public List<string> Imagenes { get; set; } = new();
 
     }
 }

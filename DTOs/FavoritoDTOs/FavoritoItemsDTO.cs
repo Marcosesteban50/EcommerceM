@@ -7,6 +7,6 @@
        
         public decimal Precio { get; set; }
 
-        public string? ImagenUrl { get; set; }
+        public List<string> Imagenes { get; set; } = new();
     }
 }

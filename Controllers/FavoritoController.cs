@@ -50,6 +50,7 @@ namespace EcommerceAPI.Controllers
             var lista = await dbContext.Favoritos
                 .Include(f => f.Items)
                 .ThenInclude(x => x.Producto)
+                .ThenInclude(x => x.Imagenes)
                 .FirstOrDefaultAsync(x => x.UsuarioId == usuario);
 
             // Si el usuario no tiene una lista todavía, devolvemos una lista vacía

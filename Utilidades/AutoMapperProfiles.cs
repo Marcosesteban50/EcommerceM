@@ -82,7 +82,7 @@ namespace EcommerceAPI.Utilidades
                 o => o.MapFrom(a => a.Producto.Nombre))
                 .ForMember(dest => dest.Precio,
                            opt => opt.MapFrom(src => src.Producto.Precio))
-            .ForMember(dest => dest.ImagenUrl, opt => opt.MapFrom(src => src.Producto.ImagenUrl));
+            .ForMember(dest => dest.Imagenes, opt => opt.MapFrom(src => src.Producto.Imagenes.Select(x=> x.Url).ToList()));
         }
 
         private void MapeoOrdenes()
@@ -120,7 +120,7 @@ namespace EcommerceAPI.Utilidades
                            opt => opt.MapFrom(src => src.Producto.Nombre))
                 .ForMember(dest => dest.Precio,
                            opt => opt.MapFrom(src => src.Producto.Precio))
-            .ForMember(dest => dest.ImagenUrl, opt => opt.MapFrom(src => src.Producto.ImagenUrl));
+            .ForMember(dest => dest.Imagenes, opt => opt.MapFrom(src => src.Producto.Imagenes.Select(x => x.Url).ToList()));
         }
     }
 }

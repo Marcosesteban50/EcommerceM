@@ -159,16 +159,16 @@ app.Use(async (context, next) =>
 });
 
 
-//Para Unittesting y crear DB
-//using (var scope = app.Services.CreateScope())
-//{
-//    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+//Para UnitTesting y crear base de datos de produccion en MonsterASP.net en este ecaso
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-//    if (dbContext.Database.IsRelational())
-//    {
-//        dbContext.Database.Migrate();
-//    }
-//}
+    if (dbContext.Database.IsRelational())
+    {
+        dbContext.Database.Migrate();
+    }
+}
 
 
 if (app.Environment.IsDevelopment())

@@ -58,7 +58,10 @@ namespace EcommerceAPI.Controllers
             // Incluimos los items y también el producto de cada item
             var carrito = await dbContext.Carritos
                 .Include(c => c.Items)
+                //incluimos el producto
                 .ThenInclude(i => i.Producto)
+                //incluimos la imagen
+                .ThenInclude(a=> a.Imagenes)
                 .FirstOrDefaultAsync(c => c.UsuarioId == usuario);
 
             // Si el usuario no tiene carrito todavía, devolvemos un carrito vacío
