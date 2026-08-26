@@ -17,9 +17,10 @@ namespace EcommerceAPI.DTOs.ProductosDTOs
         public IFormFile? ImagenUrl { get; set; }
         public List<IFormFile>? Imagenes { get; set; }
         public string? CategoriaId { get; set; }
-        
+        public List<string>? ImagenesEliminadas { get; set; }
 
-        
+
+
 
         public int Stock { get; set; }
 

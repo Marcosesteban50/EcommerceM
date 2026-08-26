@@ -4,6 +4,7 @@ using EcommerceAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EcommerceAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260826150158_CambiosCategoriaEnProductoHistorial")]
+    partial class CambiosCategoriaEnProductoHistorial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -322,7 +325,7 @@ namespace EcommerceAPI.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("CategoriaId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DatosAntes")
                         .HasColumnType("nvarchar(max)");
@@ -353,8 +356,6 @@ namespace EcommerceAPI.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CategoriaId");
 
                     b.ToTable("ProductoHistorial");
                 });
@@ -699,15 +700,6 @@ namespace EcommerceAPI.Migrations
                     b.Navigation("Categoria");
 
                     b.Navigation("Usuario");
-                });
-
-            modelBuilder.Entity("EcommerceAPI.Modelos.ProductoHistorial", b =>
-                {
-                    b.HasOne("EcommerceAPI.Modelos.Categoria", "Categoria")
-                        .WithMany()
-                        .HasForeignKey("CategoriaId");
-
-                    b.Navigation("Categoria");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

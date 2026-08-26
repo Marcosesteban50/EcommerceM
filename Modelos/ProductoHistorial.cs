@@ -18,6 +18,7 @@ namespace EcommerceAPI.Modelos
         public string UsuarioNombre { get; set; } = null!;
       
         public string? ImagenUrl { get; set; }
+        public List<string> Imagenes { get; set; } = new();
 
         public string? CategoriaId { get; set; }
        

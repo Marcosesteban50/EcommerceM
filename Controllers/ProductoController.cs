@@ -151,7 +151,7 @@ namespace EcommerceAPI.Controllers
             var producto = mapper.Map<Producto>(productoCreacionDTO);
 
 
-            Console.WriteLine($"Cantidad imágenes: {productoCreacionDTO.Imagenes?.Count}");
+            //Console.WriteLine($"Cantidad imágenes: {productoCreacionDTO.Imagenes?.Count}");
 
             // Si viene una imagen, la guardo en el contenedor de productos
             if (productoCreacionDTO.Imagenes is not null)
@@ -249,10 +249,9 @@ namespace EcommerceAPI.Controllers
         // ------------------- PUT: EDITAR PRODUCTO -------------------
 
         [HttpPut("{id}")]
-
         public async Task<ActionResult> Put(string id, [FromForm] ProductoCreacionDTO productoCreacionDTO)
         {
-            // Obtengo el usuario que está editando
+            // Usuario que está editando
             var usuarioId = await servicioUsuarios.ObtenerUsuarioId();
 
             if (usuarioId == null)
@@ -261,55 +260,103 @@ namespace EcommerceAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // Busco el producto con su categoría para poder guardar bien el historial
+
+            // Traemos producto + categoría + imágenes existentes
             var producto = await dbContext.Productos
                 .Include(x => x.Categoria)
+                .Include(x => x.Imagenes)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (producto == null)
-                return NotFound(new { mensaje = "No se encontro el producto" });
+                return NotFound(new { mensaje = "No se encontró el producto" });
 
-            // Guardo el estado anterior del producto antes de modificarlo
+
+            // Guardamos estado anterior para historial
             var productoAntes = new Producto
             {
                 Id = producto.Id,
                 Nombre = producto.Nombre,
                 Categoria = producto.Categoria,
                 CategoriaId = producto.CategoriaId,
-                ImagenUrl = producto.ImagenUrl,
                 Descripcion = producto.Descripcion,
                 Precio = producto.Precio,
-                Stock = producto.Stock
-            };
+                Stock = producto.Stock,
 
-            // Guardo quién editó el producto
-            producto.UsuarioId = usuarioId;
+                // Copiamos las imágenes anteriores
+                Imagenes = producto.Imagenes
+                    .Select(x => new ImagenProducto
+                    {
+                        Id = x.Id,
+                        Url = x.Url,
+                        ProductoId = x.ProductoId
+                    })
+                    .ToList()
+            };
 
             // Paso los datos nuevos del DTO al producto
             mapper.Map(productoCreacionDTO, producto);
 
-            // Si el producto tiene imagen, la edito/reemplazo
-            if (producto.ImagenUrl != null)
+
+
+
+            // =====================================
+            // ELIMINAR IMÁGENES EXISTENTES
+            // =====================================
+
+            if (productoCreacionDTO.ImagenesEliminadas != null)
             {
-                producto.ImagenUrl = await almacenadorArchivos.Editar(
-                    producto.ImagenUrl,
-                    contenedor,
-                    productoCreacionDTO.ImagenUrl!
-                );
+                foreach (var url in productoCreacionDTO.ImagenesEliminadas)
+                {
+                    var imagen = producto.Imagenes
+                        .FirstOrDefault(x => x.Url == url);
+
+                    if (imagen is not null)
+                    {
+                        dbContext.ImagenesProductos.Remove(imagen);
+                    }
+                }
             }
+
+
+            // =====================================
+            // AGREGAR IMÁGENES NUEVAS
+            // =====================================
+
+            if (productoCreacionDTO.Imagenes != null)
+            {
+                foreach (var archivo in productoCreacionDTO.Imagenes)
+                {
+                    var url = await almacenadorArchivos.Almacenar(
+                        contenedor,
+                        archivo
+                    );
+
+                    producto.Imagenes.Add(new ImagenProducto
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Url = url
+                    });
+                }
+            }
+
 
             await dbContext.SaveChangesAsync();
 
+
             var usuario = await userManager.FindByIdAsync(usuarioId);
 
-            // Registro en historial los datos antes y después
+
+            // Historial
             await RegistrarLog(
                 productoAntes,
                 producto,
                 usuarioId,
-                usuario?.UserName ?? usuario?.Email ?? "Desconocido",
+                usuario?.UserName
+                    ?? usuario?.Email
+                    ?? "Desconocido",
                 accion: AccionProducto.Editado
             );
+
 
             return NoContent();
         }
@@ -478,7 +525,7 @@ namespace EcommerceAPI.Controllers
             }
 
             // Ejecuto la consulta
-            var productos = await productosQueryable.ToListAsync();
+            var productos = await productosQueryable.ProjectTo<ProductoDTO>(mapper.ConfigurationProvider).ToListAsync();
 
             // Convierto los productos a DTO
             var productoDTO = mapper.Map<List<ProductoDTO>>(productos);
@@ -559,7 +606,9 @@ namespace EcommerceAPI.Controllers
                 ProductoId = productoDespues?.Id ?? productoAntes!.Id,
 
                 CategoriaId = productoDespues?.CategoriaId ?? productoAntes?.CategoriaId,
-                ImagenUrl = productoDespues?.ImagenUrl ?? productoAntes?.ImagenUrl,
+                Imagenes = productoDespues?.Imagenes.Select(x => x.Url).ToList()
+                ?? productoAntes?.Imagenes.Select(x => x.Url).ToList()
+                ?? new List<string>(),
 
                 UsuarioId = usuarioId,
                 UsuarioNombre = usuarioNombre,
@@ -572,7 +621,9 @@ namespace EcommerceAPI.Controllers
                     productoAntes.Descripcion,
                     productoAntes.CategoriaId,
                     CategoriaNombre = productoAntes.Categoria?.Nombre,
-                    productoAntes.ImagenUrl,
+                    Imagenes = productoAntes.Imagenes
+    .Select(x => x.Url)
+    .ToList(),
                     productoAntes.Precio,
                     productoAntes.Stock
                 }) : null,
@@ -584,7 +635,9 @@ namespace EcommerceAPI.Controllers
                     productoDespues.Descripcion,
                     productoDespues.CategoriaId,
                     CategoriaNombre = productoDespues.Categoria?.Nombre,
-                    productoDespues.ImagenUrl,
+                    Imagenes = productoDespues.Imagenes
+    .Select(x => x.Url)
+    .ToList(),
                     productoDespues.Precio,
                     productoDespues.Stock
                 }) : null,

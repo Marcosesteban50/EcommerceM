@@ -59,6 +59,7 @@ namespace EcommerceAPI.Utilidades
     .ForMember(
         x => x.Imagenes,
         opt => opt.MapFrom(x =>
+        //seleccionamos solo la url de la imagen
             x.Imagenes.Select(i => i.Url)
         )
     );
@@ -82,7 +83,7 @@ namespace EcommerceAPI.Utilidades
                 o => o.MapFrom(a => a.Producto.Nombre))
                 .ForMember(dest => dest.Precio,
                            opt => opt.MapFrom(src => src.Producto.Precio))
-            .ForMember(dest => dest.Imagenes, opt => opt.MapFrom(src => src.Producto.Imagenes.Select(x=> x.Url).ToList()));
+            .ForMember(dest => dest.Imagenes, opt => opt.MapFrom(src => src.Producto.Imagenes.Select(x => x.Url).ToList()));
         }
 
         private void MapeoOrdenes()
