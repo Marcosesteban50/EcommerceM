@@ -76,7 +76,6 @@ namespace EcommerceAPI.Controllers
         // ------------------- GET: HISTORIAL POR ID -------------------
 
         [HttpGet("{Id}/historial")]
-
         public async Task<ActionResult<ProductoHistorial>> ObtenerHistorial(string Id)
         {
             // Busco un registro del historial por su id
@@ -97,6 +96,7 @@ namespace EcommerceAPI.Controllers
 
         [HttpGet("{id}")]
         [OutputCache(Tags = [cacheTag])]
+        [AllowAnonymous]
 
         public async Task<ActionResult<ProductoDTO>> Get(string id)
         {
@@ -299,9 +299,9 @@ namespace EcommerceAPI.Controllers
 
 
 
-            // =====================================
+            
             // ELIMINAR IMÁGENES EXISTENTES
-            // =====================================
+            
 
             if (productoCreacionDTO.ImagenesEliminadas != null)
             {
@@ -318,9 +318,9 @@ namespace EcommerceAPI.Controllers
             }
 
 
-            // =====================================
+            
             // AGREGAR IMÁGENES NUEVAS
-            // =====================================
+           
 
             if (productoCreacionDTO.Imagenes != null)
             {
@@ -620,6 +620,7 @@ namespace EcommerceAPI.Controllers
                     productoAntes.Nombre,
                     productoAntes.Descripcion,
                     productoAntes.CategoriaId,
+                    productoAntes.Usuario,
                     CategoriaNombre = productoAntes.Categoria?.Nombre,
                     Imagenes = productoAntes.Imagenes
     .Select(x => x.Url)
@@ -634,6 +635,7 @@ namespace EcommerceAPI.Controllers
                     productoDespues.Nombre,
                     productoDespues.Descripcion,
                     productoDespues.CategoriaId,
+                    productoDespues.Usuario,
                     CategoriaNombre = productoDespues.Categoria?.Nombre,
                     Imagenes = productoDespues.Imagenes
     .Select(x => x.Url)

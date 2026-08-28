@@ -4,6 +4,7 @@ using EcommerceAPI.DTOs;
 using EcommerceAPI.DTOs.GoogleDTO;
 using EcommerceAPI.DTOs.UsuariosDTO;
 using EcommerceAPI.Modelos;
+using EcommerceAPI.Modelos.Enums;
 using EcommerceAPI.Servicios.ServicioUsuarios;
 using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authentication;
@@ -16,8 +17,11 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Net.Mail;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 
 namespace EcommerceAPI.Controllers
 {
@@ -35,6 +39,7 @@ namespace EcommerceAPI.Controllers
         private readonly IMapper mapper;
         private readonly ILogger<UsuariosController> logger;
         private readonly IServicioUsuarios servicioUsuarios;
+
 
         public UsuariosController(UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager, IConfiguration configuration,
@@ -82,7 +87,7 @@ namespace EcommerceAPI.Controllers
         }
 
 
-      
+
 
 
 
@@ -118,8 +123,8 @@ namespace EcommerceAPI.Controllers
 
             await dbContext.PerfilesUsuarios.AddAsync(perfil);
             await dbContext.SaveChangesAsync();
-            
-            await HacerCliente(credencialesUsuarioDTO);
+
+            await HacerCliente(usuario);
             return await ConstruirToken(usuario);
         }
 
@@ -211,7 +216,7 @@ namespace EcommerceAPI.Controllers
         [HttpPost("HacerAdmin")]
 
         //Cambiar despues para solo admins
-        [AllowAnonymous]
+        //[AllowAnonymous]
         public async Task<IActionResult> HacerAdmin(EditarClaimDTO editarClaimDTO)
         {
 
@@ -374,6 +379,7 @@ namespace EcommerceAPI.Controllers
 
                     // Hacerlo cliente automáticamente
                     await userManager.AddClaimAsync(user, new Claim("Cliente", "True"));
+                    await HacerCliente(user);
                 }
                 //Si ya existe en la base de datos
                 else
@@ -434,17 +440,123 @@ namespace EcommerceAPI.Controllers
         }
 
 
-       
+
+
+
+
+        [HttpPost("EnviarCorreo")]
+        public async Task<ActionResult> Post(ContactoDTO dto)
+        {
+
+            //Console.WriteLine("===== ENTRE A ENVIAR CORREO =====");
+            var correoOrigen = configuration["Email:Correo"];
+            var password = configuration["Email:Password"];
+            var correoDestino = configuration["Email:Destino"];
+
+            //Console.WriteLine($"Correo origen existe: {!string.IsNullOrWhiteSpace(correoOrigen)}");
+            //Console.WriteLine($"Password existe: {!string.IsNullOrWhiteSpace(password)}");
+            //Console.WriteLine($"Correo destino existe: {!string.IsNullOrWhiteSpace(correoDestino)}");
+            //Console.WriteLine($"Correo cliente: {dto.Correo}");
+
+
+            // Validamos configuración
+            if (string.IsNullOrWhiteSpace(correoOrigen))
+            {
+                return StatusCode(500, new
+                {
+                    mensaje = "Email:Correo no está configurado"
+                });
+            }
+
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                return StatusCode(500, new
+                {
+                    mensaje = "Email:Password no está configurado"
+                });
+            }
+
+            if (string.IsNullOrWhiteSpace(correoDestino))
+            {
+                return StatusCode(500, new
+                {
+                    mensaje = "Email:Destino no está configurado"
+                });
+            }
+
+            //SmtpClient es para enviar correos
+            var smtp = new SmtpClient("smtp.gmail.com")
+            {
+                Port = 587,
+
+
+                //NetworkCredential Credenciales de red
+                Credentials = new NetworkCredential(
+                    correoOrigen,
+                    password
+                ),
+
+                //Conexion-Encriptacion SSL de seguridad
+                EnableSsl = true
+            };
+
+
+            //Instanciamos nuevo Mensaje de correo 
+            var mail = new MailMessage();
+
+
+            //De quien viene
+            mail.From = new MailAddress(correoOrigen);
+
+
+            //A quien le enviamos
+            mail.To.Add(correoDestino);
+
+
+            //Asunto
+            mail.Subject = $"Contacto Ecommerce - {dto.Asunto}";
+
+
+            //Cuerpo del correo
+            mail.Body = $"""
+        Nuevo mensaje desde Gogomarcosecommerce
+
+        Nombre: {dto.Nombre}
+
+        Correo: {dto.Correo}
+
+        Asunto: {dto.Asunto}
+
+        Mensaje:
+        {dto.Mensaje}
+        """;
+
+
+            // Cuando le des Responder, responde al cliente que envio el correo y no a nosotros mismos
+            mail.ReplyToList.Add(
+                new MailAddress(dto.Correo)
+            );
+
+
+            //enviamos el correo
+            await smtp.SendMailAsync(mail);
+
+            //Retornamos mensaje correcto si fue enviado exitosamente
+            return Ok(new
+            {
+                mensaje = "Correo enviado correctamente"
+            });
+        }
 
 
 
         //Fucion hacer Cliente automaticamente
 
 
-        private async Task HacerCliente(CredencialesUsuarioDTO credencialesUsuarioDTO)
+        private async Task HacerCliente(IdentityUser credencialesUsuarioDTO)
         {
 
-            var usuario = await userManager.FindByEmailAsync(credencialesUsuarioDTO.Email);
+            var usuario = await userManager.FindByEmailAsync(credencialesUsuarioDTO.Email!);
 
             if (usuario == null)
             {
@@ -462,6 +574,82 @@ namespace EcommerceAPI.Controllers
                 await userManager.AddClaimAsync(usuario, new Claim("Cliente", "True"));
             }
 
+        }
+
+
+        //TRABAJAR REGISTRAR LOGS DE USUARIOS CREADOS TANTO GOOGLE-LOCAL
+
+
+        private async Task RegistrarLog(
+            Producto? productoAntes,
+            Producto? productoDespues,
+            string usuarioId,
+            string usuarioNombre,
+            AccionProducto accion)
+        {
+            // Si el producto después tiene categoría pero no está cargada,
+            // la cargo para poder guardar el nombre de la categoría en el historial
+            if (productoDespues != null &&
+                productoDespues.Categoria == null &&
+                productoDespues.CategoriaId != null)
+            {
+                await dbContext.Entry(productoDespues)
+                    .Reference(p => p.Categoria)
+                    .LoadAsync();
+            }
+
+            // Creo el registro del historial con los datos antes y después
+            var historial = new ProductoHistorial
+            {
+                // Si existe productoDespues uso ese id, si no uso el de productoAntes
+                ProductoId = productoDespues?.Id ?? productoAntes!.Id,
+
+                CategoriaId = productoDespues?.CategoriaId ?? productoAntes?.CategoriaId,
+                Imagenes = productoDespues?.Imagenes.Select(x => x.Url).ToList()
+                ?? productoAntes?.Imagenes.Select(x => x.Url).ToList()
+                ?? new List<string>(),
+
+                UsuarioId = usuarioId,
+                UsuarioNombre = usuarioNombre,
+                Accion = accion,
+
+                // Guardo los datos anteriores en formato JSON
+                DatosAntes = productoAntes != null ? JsonSerializer.Serialize(new
+                {
+                    productoAntes.Nombre,
+                    productoAntes.Descripcion,
+                    productoAntes.CategoriaId,
+                    productoAntes.Usuario,
+                    CategoriaNombre = productoAntes.Categoria?.Nombre,
+                    Imagenes = productoAntes.Imagenes
+    .Select(x => x.Url)
+    .ToList(),
+                    productoAntes.Precio,
+                    productoAntes.Stock
+                }) : null,
+
+                // Guardo los datos nuevos en formato JSON
+                DatosDespues = productoDespues != null ? JsonSerializer.Serialize(new
+                {
+                    productoDespues.Nombre,
+                    productoDespues.Descripcion,
+                    productoDespues.CategoriaId,
+                    productoDespues.Usuario,
+                    CategoriaNombre = productoDespues.Categoria?.Nombre,
+                    Imagenes = productoDespues.Imagenes
+    .Select(x => x.Url)
+    .ToList(),
+                    productoDespues.Precio,
+                    productoDespues.Stock
+                }) : null,
+
+                // Fecha en que se hizo la acción
+                FechaCreacion = DateTime.UtcNow
+            };
+
+            // Guardo el historial en la base de datos
+            dbContext.ProductoHistorial.Add(historial);
+            await dbContext.SaveChangesAsync();
         }
 
 

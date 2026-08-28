@@ -189,7 +189,7 @@ public class OrdenesController : ControllerBase
     }
 
     [HttpGet("TodasLasOrdenes")]
-    [AllowAnonymous]
+   
     public async Task<ActionResult<List<OrdenListadoDTO>>> TodasLasOrdenes()
     {
         // Verifico que el usuario esté autenticado
@@ -208,7 +208,7 @@ public class OrdenesController : ControllerBase
     }
 
     [HttpGet("EstadosOrdenes")]
-    [AllowAnonymous]
+ 
     public async Task<ActionResult<List<OrdenListadoDTO>>> EstadosOrdenes()
     {
         // Verifico que el usuario esté autenticado
@@ -229,7 +229,7 @@ public class OrdenesController : ControllerBase
     }
 
     [HttpGet("EstadosPagos")]
-    [AllowAnonymous]
+  
     public async Task<ActionResult<List<OrdenListadoDTO>>> EstadosPagos()
     {
         // Verifico que el usuario esté autenticado
@@ -246,7 +246,7 @@ public class OrdenesController : ControllerBase
 
     [HttpGet("{id}", Name = "ObtenerOrdenPorId")]
     [OutputCache(Tags = [cacheTag])]
-    [AllowAnonymous]
+ 
     public async Task<ActionResult<OrdenListadoDTO>> Get(string id)
     {
         // Busco una orden por su id y la proyecto al DTO
@@ -263,7 +263,7 @@ public class OrdenesController : ControllerBase
 
     [HttpGet("{id}/EstadoOrden")]
     [OutputCache(Tags = [cacheTag])]
-    [AllowAnonymous]
+    
     public async Task<ActionResult<EstadoOrdenDTO>> GetEstadoOrdenPorId(string id)
     {
         // Busco un estado de orden por id
@@ -279,7 +279,7 @@ public class OrdenesController : ControllerBase
 
     [HttpGet("{id}/EstadoPago")]
     [OutputCache(Tags = [cacheTag])]
-    [AllowAnonymous]
+  
     public async Task<ActionResult<EstadoPagoDTO>> GetEstadoPagoPorId(string id)
     {
         // Busco un estado de pago por id
@@ -294,7 +294,7 @@ public class OrdenesController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [AllowAnonymous]
+ 
     public async Task<ActionResult> Put(string id, [FromBody] OrdenCreacionDTO ordenCreacionDTO)
     {
         // Obtengo el usuario logueado
@@ -329,7 +329,7 @@ public class OrdenesController : ControllerBase
     }
 
     [HttpPut("EditarEstadoOrden/{id}")]
-    [AllowAnonymous]
+
     public async Task<ActionResult> Put(string id, [FromBody] EstadoOrdenCreacionDTO estadoOrdenCreacionDTO)
     {
         // Valido el modelo enviado
@@ -358,7 +358,7 @@ public class OrdenesController : ControllerBase
     }
 
     [HttpPut("EditarEstadoPago/{id}")]
-    [AllowAnonymous]
+   
     public async Task<ActionResult> Put(string id, [FromBody] EstadoPagoCreacionDTO estadoPagoCreacionDTO)
     {
         // Valido el modelo enviado
@@ -387,7 +387,7 @@ public class OrdenesController : ControllerBase
     }
 
     [HttpDelete("BorrarEstadoOrden/{id}")]
-    [AllowAnonymous]
+    
     public async Task<ActionResult> BorrarEstadoOrden(string id)
     {
         // Borro el estado de orden directamente en la base de datos
@@ -406,7 +406,7 @@ public class OrdenesController : ControllerBase
     }
 
     [HttpDelete("BorrarEstadoPago/{id}")]
-    [AllowAnonymous]
+  
     public async Task<ActionResult> BorrarEstadoPago(string id)
     {
         // Borro el estado de pago directamente en la base de datos

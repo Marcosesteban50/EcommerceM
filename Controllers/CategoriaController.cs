@@ -72,7 +72,7 @@ namespace EcommerceAPI.Controllers
         [OutputCache(Tags = [cacheTag])]
 
         // Cualquiera puede consultar una categoría
-        [AllowAnonymous]
+      
         public async Task<ActionResult<CategoriaDTO>> Get(string id)
         {
             // Buscamos la categoría por id y la convertimos a DTO
@@ -96,8 +96,7 @@ namespace EcommerceAPI.Controllers
         // Esto no es muy necesario en POST, porque normalmente cacheamos GET
         [OutputCache(Tags = [cacheTag])]
 
-        // OJO: aquí está público, pero si solo admin debe crear categorías, quitar este AllowAnonymous
-        [AllowAnonymous]
+     
         public async Task<ActionResult> Post([FromBody] CategoriaCreacionDTO categoriaCreacionDTO)
         {
             // Validamos que el DTO cumpla con las reglas del modelo
